@@ -66,14 +66,13 @@ func profilesHandler(w http.ResponseWriter, r *http.Request) {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, conf.SessionName)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		fmt.Println(err)
 	}
 
 	query := "select id, first_name, last_name, age, gender, city from profiles"
 	rows, err := database.Query(query)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 	defer rows.Close()
 
@@ -104,7 +103,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 
 	firstName := r.FormValue("firstName")
@@ -120,7 +119,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = database.Exec(query, firstName, lastName, age, gender, about, city, login, password)
 
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 
 	http.Redirect(w, r, "/", 301)
@@ -129,7 +128,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 func authHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 	login := r.FormValue("login")
 	password := r.FormValue("password")
@@ -137,7 +136,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	query := "select first_name, last_name from profiles WHERE login=? AND password=?"
 	rows, err := database.Query(query, login, password)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 	defer rows.Close()
 
@@ -147,13 +146,12 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 
 		session, err := store.Get(r, conf.SessionName)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			fmt.Println(err)
 		}
 		session.Values["currentUser"] = p.LastName + " " + p.FirstName
 		err = sessions.Save(r, w)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			fmt.Println(err)
 		}
 	}
 	http.Redirect(w, r, "/", 301)
