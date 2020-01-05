@@ -12,6 +12,7 @@ type Config struct {
 	Database         string
 	DatabaseUser     string
 	DatabasePassword string
+	DatabaseServer   string
 }
 
 func NewConfig() *Config {
@@ -25,6 +26,7 @@ func NewConfig() *Config {
 		Database:         getEnv("DATABASE", ""),
 		DatabaseUser:     getEnv("DATABASE_USER", ""),
 		DatabasePassword: getEnv("DATABASE_PASSWORD", ""),
+		DatabaseServer:   getEnv("DATABASE_SERVER", ""),
 	}
 }
 
