@@ -64,6 +64,7 @@ func profilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("indexHandler")
 	session, err := store.Get(r, conf.SessionName)
 	if err != nil {
 		fmt.Println(err)
