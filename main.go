@@ -9,7 +9,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"social_network/src/config"
+	"social_network/config"
 )
 
 var conf = config.NewConfig()

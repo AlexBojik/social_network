@@ -1,6 +1,49 @@
 {
 	"comment": "",
 	"ignore": "test",
-	"package": [],
-	"rootPath": "social_network"
+	"package": [
+		{
+			"checksumSHA1": "Nm3LYUC2SdNGb/SI92kpgvAtTvc=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "87239404061139bfbd9a61b167c5ed54539e6086",
+			"revisionTime": "2020-01-05T05:18:52Z"
+		},
+		{
+			"checksumSHA1": "oUtU1Z0YIhbjb+bfYSkzlim9FD4=",
+			"path": "github.com/gorilla/mux",
+			"revision": "49c01487a141b49f8ffe06277f3dca3ee80a55fa",
+			"revisionTime": "2019-11-21T17:05:00Z"
+		},
+		{
+			"checksumSHA1": "mo95lsTo6uV/Yw9IhdwEA2mKJHI=",
+			"path": "github.com/gorilla/securecookie",
+			"revision": "61b4ad17eb88d0d1118560d1101176279be2bc88",
+			"revisionTime": "2019-10-28T04:23:04Z"
+		},
+		{
+			"checksumSHA1": "3A5lexd9Vm74rclsRrlaXUwHqgI=",
+			"path": "github.com/gorilla/sessions",
+			"revision": "15ff3511704639ab26f7843f780c015f4bf49565",
+			"revisionTime": "2020-01-05T16:41:44Z"
+		},
+		{
+			"checksumSHA1": "2/CLqEnt2za6K6Uww1ypV/UxWq0=",
+			"path": "github.com/joho/godotenv",
+			"revision": "b09de681dcaff3eaeafcc62ee1f9f622a0c32b8b",
+			"revisionTime": "2019-10-20T20:25:22Z"
+		},
+		{
+			"path": "social_network",
+			"revision": ""
+		},
+		{
+			"path": "social_network/config",
+			"revision": ""
+		}
+	],
+	"rootPath": "social_network",
+	"heroku" : {
+		"goVersion": go1.13,
+		"install": ["./..."]
+	}
 }
