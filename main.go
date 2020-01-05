@@ -160,7 +160,6 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println(conf)
 	db, err := sql.Open("mysql", conf.DatabaseUser+":"+conf.DatabasePassword+"@/"+conf.Database)
 
 	if err != nil {
