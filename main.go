@@ -163,7 +163,7 @@ func main() {
 	db, err := sql.Open("mysql", conf.DatabaseUser+":"+conf.DatabasePassword+"@/"+conf.Database)
 
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 
 	database = db
