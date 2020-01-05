@@ -43,7 +43,7 @@
 	],
 	"rootPath": "social_network",
 	"heroku" : {
-		"goVersion": go1.13,
+		"goVersion": "go1.13",
 		"install": ["./..."]
 	}
 }
