@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Анкета</title>
+</head>
+<body>
+    <h1>Анкета</h1>
+    {{if .FirstName}}
+        <p>Имя: {{ .FirstName}}</p>
+        <p>Фамилия: {{ .LastName}}</p>
+        <p>Возраст: {{ .Age}}</p>
+        <p>Пол: {{ .Gender}}</p>
+        <p>Интересы: {{ .About}}</p>
+        <p>Город: {{ .City}}</p>
+    {{else}}
+        <h2>Такого пользователя не существует</h2>
+    {{end}}
+    <form action="/">
+        <input type="submit" value="На главную">
+    </form>
+</body>
+</html>

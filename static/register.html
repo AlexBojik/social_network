@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация нового профиля</title>
+    <style>
+        label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Регистрация нового профиля</h1>
+    <form name="register" method="post" action="registration">
+        <p>
+            <label>Имя<br>
+                <input name="firstName" type="text" size="40">
+            </label>
+        </p>
+        <p>
+            <label>Фамилия<br>
+                <input name="lastName" type="text" size="40">
+            </label>
+        </p>
+        <p>
+            <label>Возраст<br>
+                <input name="age" type="number" min="10" max="150">
+            </label>
+        </p>
+        <p>
+            <label>Пол</label><br>
+            <label>
+                <input name="gender" type="radio" value=1>
+            </label>Мужской
+            <label>
+                <input name="gender" type="radio" value=2>
+            </label>Женский
+        </p>
+        <p>
+            <label>Интересы<br>
+                <textarea name="about" cols="40" rows="4"></textarea>
+            </label>
+        </p>
+        <p>
+            <label>Город<br>
+                <input name="city" type="text" size="40">
+            </label>
+        </p>
+        <p>
+            <label>Телефон или e-mail<br>
+                <input name="login" type="text" size="40">
+            </label>
+        </p>
+        <p>
+            <label>Пароль<br>
+                <input name="password" type="password" size="40">
+            </label>
+        </p>
+        <input type="submit">
+    </form>
+</body>
+</html>

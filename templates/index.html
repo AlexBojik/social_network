@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Социальная сеть</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+<h1>Социальная сеть</h1>
+{{if eq .CurrentUser ""}}
+    <form name="auth" method="post" action="auth">
+        <p>
+            <label>Телефон или e-mail<br>
+                <input name="login" type="text" size="40">
+            </label>
+        </p>
+        <p>
+            <label>Пароль<br>
+                <input name="password" type="password" size="40">
+            </label>
+        </p>
+        <input type="submit" value="Войти">
+        <a href="./register">Зарегистрироваться</a>
+    </form>
+{{else}}
+    <h2>Добро пожаловать, {{ .CurrentUser}}!</h2>
+{{end}}
+<br>
+<table>
+    <tr>
+        <th>Фамилия Имя</th>
+        <th>Возраст</th>
+        <th>Пол</th>
+        <th>Город</th>
+    </tr>
+    {{range .Profiles}}
+        <tr>
+            <td><a href="./profile/{{ .Id}}">{{ .LastName}} {{ .FirstName}}</a></td>
+            <td>{{ .Age}}</td>
+            <td>{{ .Gender}}</td>
+            <td>{{ .City}}</td>
+        </tr>
+    {{else}}
+        <h2>Нет пользователей</h2>
+    {{end}}
+</table>
+</body>
+</html>
