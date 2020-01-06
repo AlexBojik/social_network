@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"social_network/config"
 )
 
@@ -177,5 +178,6 @@ func main() {
 	http.Handle("/", router)
 
 	fmt.Println("Server is listening...")
-	http.ListenAndServe(":80", nil)
+	port := os.Getenv("PORT")
+	http.ListenAndServe(":"+port, nil)
 }
