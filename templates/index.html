@@ -31,6 +31,13 @@
     <h2>Добро пожаловать, {{ .CurrentUser}}!</h2>
 {{end}}
 <br>
+
+<form name="search" action="search" method="get">
+    <label>
+        <input name="search" type="text" size="40">
+    </label>
+    <input type="submit" value="Поиск">
+</form>
 <table>
     <tr>
         <th>Фамилия Имя</th>

@@ -65,13 +65,12 @@ func profilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("indexHandler")
 	session, err := store.Get(r, conf.SessionName)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	query := "select id, first_name, last_name, age, gender, city from profiles"
+	query := "select id, first_name, last_name, age, gender, city from profiles limit 1000"
 	rows, err := database.Query(query)
 	if err != nil {
 		fmt.Println(err)
@@ -99,6 +98,34 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl, _ := template.ParseFiles("templates/index.html")
+	tmpl.Execute(w, data)
+}
+
+func searchHandler(w http.ResponseWriter, r *http.Request) {
+	search := r.URL.Query().Get("search")
+	query := "select id, first_name, last_name, age, gender, city from profiles where first_name like ? or last_name like ? order by id"
+	rows, err := database.Query(query, search, search)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
+	var profiles []ProfileModel
+	for rows.Next() {
+		p := ProfileModel{}
+		err := rows.Scan(&p.Id, &p.FirstName, &p.LastName, &p.Age, &p.Gender, &p.City)
+		if err != nil {
+			fmt.Println(err)
+		}
+		p.Gender = GENDER[p.Gender]
+		profiles = append(profiles, p)
+	}
+
+	data := ProfilesModel{
+		Profiles: profiles,
+	}
+
+	tmpl, _ := template.ParseFiles("templates/search.html")
 	tmpl.Execute(w, data)
 }
 
@@ -172,6 +199,7 @@ func main() {
 	router.HandleFunc("/", indexHandler)
 	router.HandleFunc("/auth", authHandler)
 	router.HandleFunc("/register", registerHandler)
+	router.HandleFunc("/search", searchHandler)
 	router.HandleFunc("/registration", registrationHandler)
 	router.HandleFunc("/profile/{id:[0-9]+}", profilesHandler)
 
