@@ -102,7 +102,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
-	search := r.URL.Query().Get("search")
+	search := r.URL.Query().Get("search") + "%"
 	query := "select id, first_name, last_name, age, gender, city from profiles where first_name like ? or last_name like ? order by id"
 	rows, err := database.Query(query, search, search)
 	if err != nil {
