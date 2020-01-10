@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты поиска</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+<h1>Результат поиска</h1>
+<table>
+    <tr>
+        <th>Фамилия Имя</th>
+        <th>Возраст</th>
+        <th>Пол</th>
+        <th>Город</th>
+    </tr>
+    {{range .Profiles}}
+        <tr>
+            <td><a href="./profile/{{ .Id}}">{{ .LastName}} {{ .FirstName}}</a></td>
+            <td>{{ .Age}}</td>
+            <td>{{ .Gender}}</td>
+            <td>{{ .City}}</td>
+        </tr>
+    {{else}}
+        <h2>Нет пользователей</h2>
+    {{end}}
+</table>
+<form action="/">
+    <input type="submit" value="На главную">
+</form>
+</body>
+</html>
