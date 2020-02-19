@@ -14,7 +14,10 @@ import (
 )
 
 var conf = config.NewConfig()
+var masterDB *sql.DB
+var slavesDB []*sql.DB
 var database *sql.DB
+var marker = 0
 var store = sessions.NewCookieStore([]byte(conf.SessionKey))
 
 var GENDER = map[string]string{
@@ -42,9 +45,11 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func profilesHandler(w http.ResponseWriter, r *http.Request) {
+	db := getSlaveDatabase()
+
 	vars := mux.Vars(r)
 	query := "select first_name, last_name, age, gender, city, about from profiles WHERE id = ?"
-	rows, err := database.Query(query, vars["id"])
+	rows, err := db.Query(query, vars["id"])
 
 	if err != nil {
 		log.Println(err)
@@ -65,13 +70,14 @@ func profilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	db := getSlaveDatabase()
 	session, err := store.Get(r, conf.SessionName)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	query := "select id, first_name, last_name, age, gender, city from profiles limit 1000"
-	rows, err := database.Query(query)
+	rows, err := db.Query(query)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -101,32 +107,49 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
+func getSlaveDatabase() *sql.DB {
+	slavesCount := len(slavesDB)
+	if slavesCount > 0 {
+		marker = (marker + 1) % len(slavesDB)
+		return slavesDB[marker]
+	} else {
+		return database
+	}
+}
+
 func searchHandler(w http.ResponseWriter, r *http.Request) {
+	db := getSlaveDatabase()
+
 	search := r.URL.Query().Get("search") + "%"
-	query := "select id, first_name, last_name, age, gender, city from profiles where first_name like ? or last_name like ? order by id"
-	rows, err := database.Query(query, search, search)
-	if err != nil {
-		fmt.Println(err)
-	}
+	query := "select id, first_name, last_name, age, gender, city from profiles where first_name like ? " +
+		"union select id, first_name, last_name, age, gender, city from profiles where last_name like ? order by id limit 100"
+	rows, err := db.Query(query, search, search)
 	defer rows.Close()
-
-	var profiles []ProfileModel
-	for rows.Next() {
-		p := ProfileModel{}
-		err := rows.Scan(&p.Id, &p.FirstName, &p.LastName, &p.Age, &p.Gender, &p.City)
-		if err != nil {
-			fmt.Println(err)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		var profiles []ProfileModel
+		for rows.Next() {
+			p := ProfileModel{}
+			err := rows.Scan(&p.Id, &p.FirstName, &p.LastName, &p.Age, &p.Gender, &p.City)
+			if err != nil {
+				fmt.Print(err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			p.Gender = GENDER[p.Gender]
+			profiles = append(profiles, p)
 		}
-		p.Gender = GENDER[p.Gender]
-		profiles = append(profiles, p)
-	}
 
-	data := ProfilesModel{
-		Profiles: profiles,
-	}
+		data := ProfilesModel{
+			Profiles: profiles,
+		}
 
-	tmpl, _ := template.ParseFiles("templates/search.html")
-	tmpl.Execute(w, data)
+		tmpl, _ := template.ParseFiles("templates/search.html")
+		err = tmpl.Execute(w, data)
+		if err != nil {
+			fmt.Print(err)
+		}
+	}
 }
 
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
@@ -155,6 +178,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
+	db := getSlaveDatabase()
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Println(err)
@@ -163,7 +187,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	query := "select first_name, last_name from profiles WHERE login=? AND password=?"
-	rows, err := database.Query(query, login, password)
+	rows, err := db.Query(query, login, password)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -187,13 +211,23 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	db, err := sql.Open("mysql", conf.DatabaseUser+":"+conf.DatabasePassword+"@tcp("+conf.DatabaseServer+")/"+conf.Database)
+	masterDB, err := sql.Open("mysql", conf.DatabaseUser+":"+conf.DatabasePassword+"@tcp("+conf.DatabaseMasterServer+")/"+conf.Database)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
+	masterDB.SetMaxOpenConns(conf.MaxOpenConnections)
+	database = masterDB
 
-	database = db
-	defer db.Close()
+	for _, slaveServer := range conf.DatabaseSlaveServers {
+		slave, err := sql.Open("mysql", conf.DatabaseUser+":"+conf.DatabasePassword+"@tcp("+slaveServer+")/"+conf.Database)
+		defer slave.Close()
+		if err != nil {
+			log.Println(err)
+		}
+		slave.SetMaxOpenConns(conf.MaxOpenConnections)
+		slavesDB = append(slavesDB, slave)
+	}
+	defer masterDB.Close()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", indexHandler)
@@ -207,5 +241,5 @@ func main() {
 
 	fmt.Println("Server is listening...")
 	port := os.Getenv("PORT")
-	http.ListenAndServe(":"+port, nil)
+	err = http.ListenAndServe(":"+port, nil)
 }
